@@ -1,21 +1,23 @@
 const request = require('request');
-const args = process.argv;
 
-request('https://api.thecatapi.com/v1/breeds/', (error, response, body) => {
+const fetchBreedDescription = function(breedName, callback) {
 
-  if (error) {
-    response;
-    return console.log(error);
-  }
+  request('https://api.thecatapi.com/v1/breeds/', (error, response, body) => {
 
-  const data = JSON.parse(body);
-
-  for (let i in data) {
-    if (data[i].name === args[2]) {
-      return console.log(data[i].description);
+    if (error || response.statusCode !== 200) {
+      return callback(error, null);
     }
-  }
 
-  return console.log(`${args[2]} is not an available breed in the database.`);
+    const data = JSON.parse(body);
 
-});
+    for (let i in data) {
+      if (data[i].name === breedName) {
+        return callback(null, data[i].description);
+      }
+    }
+
+    return callback(null, `${breedName} is not an available breed in the database.`);
+  });
+};
+
+module.exports = { fetchBreedDescription };
